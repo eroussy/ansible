@@ -1,0 +1,10 @@
+name: CI debian
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+jobs:
+  ci:
+    runs-on: self-hosted
+    steps:
+      - run: CI_DIR=/tmp/seapath-ci-${RANDOM}; mkdir $CI_DIR; cd $CI_DIR; git clone --depth 1 -b main git@github.com:seapath/ci.git ci; ci/launch.sh $GITHUB_REF
