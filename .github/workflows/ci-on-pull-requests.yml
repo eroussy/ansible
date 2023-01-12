@@ -7,4 +7,5 @@ jobs:
   approved:
     runs-on: self-hosted
     steps:
-      - run: echo ${GITHUB_REF}
+      - run: echo ${GITHUB_REF} \
+             echo ok
