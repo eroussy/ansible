@@ -7,4 +7,4 @@ jobs:
   approved:
     runs-on: self-hosted
     steps:
-      - run: CI_DIR=/tmp/seapath-ci-${RANDOM}; mkdir $CI_DIR; cd $CI_DIR; git clone --depth 1 -b test-perso git@github.com:eroussy/ci-seapath.git ci; ci/build.sh $GITHUB_REF
+      - run: CI_DIR=/tmp/seapath-ci-${RANDOM}; mkdir $CI_DIR; cd $CI_DIR; git clone --depth 1 -b main git@github.com:eroussy/ci-seapath.git ci; ci/build.sh $GITHUB_REF
