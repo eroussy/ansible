@@ -1,0 +1,10 @@
+name: CI on pull requests
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+jobs:
+  approved:
+    runs-on: self-hosted
+    steps:
+      - run: echo ${GITHUB_REF}
