@@ -1,5 +1,5 @@
 name: Ansible Lint # feel free to pick your own name
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -16,4 +16,4 @@ jobs:
         uses: ansible/ansible-lint-action@main
         # optional:
         with:
-           path: "roles/"  # <-- only one value is allowed
+           path: "playbooks/"  # <-- only one value is allowed
