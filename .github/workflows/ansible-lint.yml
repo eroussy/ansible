@@ -16,4 +16,4 @@ jobs:
         uses: ansible/ansible-lint-action@main
         # optional:
         with:
-           path: "inventories/"  # <-- only one value is allowed
+           path: "roles/"  # <-- only one value is allowed
