@@ -19,7 +19,7 @@ jobs:
             echo "CI sources downloaded successfully"
             ci/launch.sh config
       - name: Setup Debian
-        run: ci/launch.sh setup
+        run: echo `pwd`; ci/launch.sh setup
       - name: Launch test
         run: ci/launch.sh test
       - name: Generate test report
