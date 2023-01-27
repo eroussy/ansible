@@ -4,9 +4,8 @@
 name: CI debian
 
 on:
-  pull_request:
-    types: [push]
-    branches: [ci-v2]
+    push
+
 jobs:
   ci:
     runs-on: self-hosted
