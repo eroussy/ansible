@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Configure Sources
         run: 
+            echo $GITHUB_REF
+            echo $GITHUB_RUN_ATTEMPT
             PR_N=`echo $GITHUB_REF | cut -d '/' -f 3`
             CI_DIR=/tmp/seapath_ci_PR-${PR_N}_${GITHUB_RUN_ATTEMPT}
             mkdir $CI_DIR; cd $CI_DIR
