@@ -4,7 +4,7 @@
 name: CI debian
 
 env:
-  CI_DIR: /tmp/seapath_ci_${{ github.GITHUB_RUN_ID }}_${{ github.GITHUB_RUN_ATTEMPT }}
+  CI_DIR: /tmp/seapath_ci_${{ github.run_id }}_${{ github.run_attempt }}
 
 on:
   push:
