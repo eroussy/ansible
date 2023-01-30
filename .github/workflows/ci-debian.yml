@@ -23,10 +23,18 @@ jobs:
             echo "CI sources downloaded successfully";
             ci/launch.sh config;
       - name: Setup Debian
-        run: echo `pwd`; ci/launch.sh setup
+        run: PR_N=`echo $GITHUB_REF | cut -d '/' -f 3`;
+             CI_DIR=/tmp/seapath_ci_PR-${PR_N}_${GITHUB_RUN_ATTEMPT};
+             $CI_DIR/ci/launch.sh setup
       - name: Launch test
-        run: ci/launch.sh test
+        run: PR_N=`echo $GITHUB_REF | cut -d '/' -f 3`;
+             CI_DIR=/tmp/seapath_ci_PR-${PR_N}_${GITHUB_RUN_ATTEMPT};
+             $CI_DIR/ci/launch.sh test
       - name: Generate test report
-        run: ci/launch.sh report
+        run: PR_N=`echo $GITHUB_REF | cut -d '/' -f 3`;
+             CI_DIR=/tmp/seapath_ci_PR-${PR_N}_${GITHUB_RUN_ATTEMPT};
+             $CI_DIR/ci/launch.sh report
       - name: clean
-        run: ci/launch.sh clean
+        run: PR_N=`echo $GITHUB_REF | cut -d '/' -f 3`;
+             CI_DIR=/tmp/seapath_ci_PR-${PR_N}_${GITHUB_RUN_ATTEMPT};
+             $CI_DIR/ci/launch.sh clean
