@@ -29,7 +29,3 @@ jobs:
       - name: Launch test
         run: cd ${{ env.WORK_DIR }};
              ci/launch.sh test
-        continue-on-error: true
-      
-      - name: Clean
-        run: rm -rf ${{ env.WORK_DIR }}
