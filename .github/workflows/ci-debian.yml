@@ -3,6 +3,9 @@
 
 name: CI debian
 
+env:
+  CI_DIR: /tmp/seapath_ci_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}
+
 on:
   pull_request:
     types: [opened, reopened, edited, review_requested]
@@ -14,16 +17,17 @@ jobs:
     steps:
     
       - name: Configure Sources
-        run: CI_DIR=/tmp/seapath_ci_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT};
+        run: 
              mkdir $CI_DIR; cd $CI_DIR;
              git clone -q --depth 1 -b main https://github.com/eroussy/ci-seapath ci;
              echo "CI sources downloaded successfully";
              ci/launch.sh config;
             
       - name: Setup Debian
-        run: CI_DIR=/tmp/seapath_ci_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT};
-             $CI_DIR/ci/launch.sh setup
+        run: 
+             cd $CI_DIR
+             ci/launch.sh setup
              
       - name: Launch test
-        run: CI_DIR=/tmp/seapath_ci_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT};
+        run: 
              $CI_DIR/ci/launch.sh test
