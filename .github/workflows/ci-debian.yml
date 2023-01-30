@@ -7,7 +7,6 @@ env:
   WORK_DIR: /tmp/seapath_ci_${{ github.run_id }}_${{ github.run_attempt }}_${{ github.sha }}
 
 on:
-  push:
   pull_request:
     types: [opened, reopened, edited, review_requested]
     branches: [debian-main]
@@ -29,7 +28,7 @@ jobs:
              
       - name: Launch test
         run: cd ${{ env.WORK_DIR }};
-             $CI_DIR/ci/launch.sh test
+             ci/launch.sh test
         continue-on-error: true
       
       - name: Clean
