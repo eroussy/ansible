@@ -18,14 +18,16 @@ jobs:
     steps:
     
       - name: Configure Sources
-        run: echo ${{ env.CI_DIR }}
+        run: mkdir ${{ env.CI_DIR }}; cd ${{ env.CI_DIR }};
+             git clone -q --depth 1 -b main https://github.com/eroussy/ci-seapath ci;
+             echo "CI sources downloaded successfully";
+             ci/launch.sh config;
         
             
       - name: Setup Debian
-        run: 
-             cd $CI_DIR
+        run: cd ${{ env.CI_DIR }}
              ci/launch.sh setup
              
       - name: Launch test
-        run: 
+        run: cd ${{ env.CI_DIR }}
              $CI_DIR/ci/launch.sh test
