@@ -19,7 +19,7 @@ jobs:
 
       - name: Configure Sources
         run: mkdir ${{ env.WORK_DIR }}; cd ${{ env.WORK_DIR }};
-             git clone -q --depth 1 -b main https://github.com/seapath/ci ci;
+             git clone -q --depth 1 -b main https://github.com/eroussy/ci-seapath ci;
              echo "CI sources downloaded successfully";
              ci/launch.sh config;
 
