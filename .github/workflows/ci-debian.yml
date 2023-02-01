@@ -32,4 +32,5 @@ jobs:
              ci/launch.sh test
              
       - name: clean
+        if: always()
         run: rm -rf $WORK_DIR
