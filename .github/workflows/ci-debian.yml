@@ -30,3 +30,6 @@ jobs:
       - name: Launch test
         run: cd ${{ env.WORK_DIR }};
              ci/launch.sh test
+             
+      - name: clean
+        run: rm -rf $WORK_DIR
