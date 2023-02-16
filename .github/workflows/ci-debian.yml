@@ -22,10 +22,10 @@ jobs:
 
       - name: Configure Debian
         id: conf
-        run: exit 1
+        run: exit 0
 
       - name: Launch system test
-        run: exit 0
+        run: exit 1
 
       - name: Launch latency tests
         run: exit 0
