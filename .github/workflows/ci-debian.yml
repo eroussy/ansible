@@ -18,11 +18,11 @@ jobs:
     steps:
 
       - name: Initialize sources
-        run: exit 1
+        run: exit 0
 
       - name: Configure Debian
         id: conf
-        run: exit 0
+        run: exit 1
 
       - name: Launch system test
         run: exit 0
