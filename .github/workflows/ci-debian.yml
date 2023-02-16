@@ -31,7 +31,7 @@ jobs:
         run: exit 0
 
       - name: Upload test report
-        if: ${{ failure() && steps.conf.conclusion == 'success' }}
+        if: ${{ always() && steps.conf.conclusion == 'success' }}
         run: exit 0
 
       - name: Clean
