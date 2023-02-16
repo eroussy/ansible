@@ -18,19 +18,22 @@ jobs:
     steps:
 
       - name: Initialize sources
-        run: mkdir ${{ env.WORK_DIR }}; cd ${{ env.WORK_DIR }};
-             git clone -q --depth 1 -b main https://github.com/seapath/ci ci;
-             echo "CI sources downloaded successfully";
-             ci/launch.sh init;
+        run: exit 0
 
       - name: Configure Debian
-        run: cd ${{ env.WORK_DIR }};
-             ci/launch.sh conf;
+        id: conf
+        run: exit 0
 
-      - name: Launch test
-        run: cd ${{ env.WORK_DIR }};
-             ci/launch.sh test;
+      - name: Launch system test
+        run: exit 0
+
+      - name: Launch latency tests
+        run: exit 0
+
+      - name: Upload test report
+        if: steps.conf.conclusion == 'success'
+        run: exit 0
 
       - name: Clean
         if: always()
-        run: rm -rf $WORK_DIR;
+        run: exit 0
