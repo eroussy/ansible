@@ -40,3 +40,21 @@
     state: started
     enabled: true
   when: seapath_distro == "OracleLinux"
+
+- name: Ensure libvirt hooks/qemu.d directory exists
+  ansible.builtin.file:
+    path: /etc/libvirt/hooks/qemu.d/
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  notify: Restart libvirtd
+
+- name: Copy qemu_hook.py to libvirt qemu hook
+  ansible.builtin.copy:
+    src: qemu_hook.py
+    dest: /etc/libvirt/hooks/qemu
+    mode: '0755'
+    owner: root
+    group: root
+  notify: Restart libvirtd
