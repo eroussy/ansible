@@ -10,6 +10,7 @@
     dest: /etc/ovs_configuration.json
     validate: "{{ network_configovs_setup_ovs_command_path }} -v -c -f %s"
   register: ovs_conf
+  when: ovs_bridges is defined
 - name: Restart seapath-config_ovs
   ansible.builtin.systemd:
     name: seapath-config_ovs
