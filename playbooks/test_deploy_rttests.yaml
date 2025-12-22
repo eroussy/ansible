@@ -1,0 +1,11 @@
+# Copyright (C) 2025, SFL (https://savoirfairelinux.com)
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Deploy rt-tests
+  hosts:
+    - cluster_machines
+    - standalone_machine
+    - VMs
+  roles:
+    - deploy_rttests

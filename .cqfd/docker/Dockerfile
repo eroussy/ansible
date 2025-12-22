@@ -12,15 +12,17 @@ RUN set -x \
     && apt-get update \
     && apt-get install -y \
         curl \
-        libarchive-tools \
-        locales \
         git \
+        libarchive-tools \
+        libnuma-dev \
+        locales \
+        npm \
         python3-full \
         python3-matplotlib \
         rstcheck \
         rsync \
+        rt-tests \
         ruby-asciidoctor-pdf \
-        npm \
         vim \
     && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen \
     && python3 -m venv --system-site-packages /env \

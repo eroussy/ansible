@@ -1,0 +1,5 @@
+# Copyright (C) 2024, SFL (https://savoirfairelinux.com)
+# SPDX-License-Identifier: Apache-2.0
+
+---
+deploy_rttests_rttests_version: "2.9"

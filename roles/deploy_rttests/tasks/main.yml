@@ -1,0 +1,21 @@
+# Copyright (C) 2024, SFL (https://savoirfairelinux.com)
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Download rt-tests release tarball
+  ansible.builtin.get_url:
+    url: "https://www.kernel.org/pub/linux/utils/rt-tests/rt-tests-{{ deploy_rttests_rttests_version }}.tar.gz"
+    dest: /tmp/rt-tests.tar.gz
+    mode: '0755'
+  delegate_to: localhost
+
+- name: Extract rt-tests tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/rt-tests.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+  delegate_to: localhost
+
+- name: Compile cyclictest
+  command: "make -C /tmp/rt-tests-{{ deploy_rttests_rttests_version }} cyclictest"
+  delegate_to: localhost
