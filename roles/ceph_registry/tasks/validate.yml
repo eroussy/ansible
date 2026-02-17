@@ -1,0 +1,75 @@
+# Copyright (C) 2026 Savoir-faire Linux, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Verify required variables for ceph_registry
+  ansible.builtin.assert:
+    that:
+      - ceph_registry_ceph_version is not none
+      - ceph_registry_ceph_version | length > 0
+    fail_msg: |
+      ceph_registry_ceph_version must be defined and not empty.
+
+- name: Verify image tar files exist
+  ansible.builtin.stat:
+    path: "{{ ceph_registry_images_path }}/{{ item.tar_file }}"
+  register: ceph_registry_image_tar_stat
+  loop:
+    - "{{ ceph_registry_ceph_image }}"
+    - "{{ ceph_registry_registry_image }}"
+  failed_when: not ceph_registry_image_tar_stat.stat.exists
+  changed_when: false
+
+- name: Verify TLS configuration when enabled
+  when: ceph_registry_tls_enabled
+  block:
+    - name: Verify TLS variables are consistent
+      ansible.builtin.assert:
+        that:
+          - (ceph_registry_tls_cert is none and ceph_registry_tls_key is none and ceph_registry_tls_ca is none) or
+            (ceph_registry_tls_cert is not none and ceph_registry_tls_key is not none and ceph_registry_tls_ca is not none)
+        fail_msg: |
+          If TLS is enabled, either all three (ceph_registry_tls_cert, ceph_registry_tls_key, and ceph_registry_tls_ca) must be provided
+          or all three must be null (for auto-generation).
+          Currently: ceph_registry_tls_cert={{ ceph_registry_tls_cert }}, ceph_registry_tls_key={{ ceph_registry_tls_key }}, ceph_registry_tls_ca={{ ceph_registry_tls_ca }}
+
+    - name: Verify TLS certificate files exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: ceph_registry_tls_file_stat
+      loop:
+        - "{{ ceph_registry_tls_cert }}"
+        - "{{ ceph_registry_tls_key }}"
+        - "{{ ceph_registry_tls_ca }}"
+      when:
+        - ceph_registry_tls_cert is not none
+        - ceph_registry_tls_key is not none
+        - ceph_registry_tls_ca is not none
+
+    - name: Fail if TLS certificate files do not exist
+      ansible.builtin.fail:
+        msg: |
+          TLS certificate files not found:
+          - {{ ceph_registry_tls_cert }}: {{ ceph_registry_tls_file_stat.results[0].stat.exists | default(false) }}
+          - {{ ceph_registry_tls_key }}: {{ ceph_registry_tls_file_stat.results[1].stat.exists | default(false) }}
+          - {{ ceph_registry_tls_ca }}: {{ ceph_registry_tls_file_stat.results[2].stat.exists | default(false) }}
+      when:
+        - ceph_registry_tls_cert is not none
+        - ceph_registry_tls_key is not none
+        - ceph_registry_tls_ca is not none
+        - ceph_registry_tls_file_stat.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
+
+- name: Verify authentication configuration when enabled
+  when: ceph_registry_auth_enabled
+  block:
+    - name: Verify authentication variables are defined
+      ansible.builtin.assert:
+        that:
+          - ceph_registry_username is not none
+          - ceph_registry_username | length > 0
+          - ceph_registry_password is not none
+          - ceph_registry_password | length > 0
+        fail_msg: |
+          When ceph_registry_auth_enabled is true, both ceph_registry_username and ceph_registry_password must be defined.
+          Currently: ceph_registry_username={{ ceph_registry_username | default('undefined') }},
+                     ceph_registry_password={{ ceph_registry_password | default('undefined') }}

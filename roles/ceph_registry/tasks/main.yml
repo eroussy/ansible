@@ -1,0 +1,83 @@
+# Copyright (C) 2025 RTE
+# Copyright (C) 2026 Savoir-faire Linux, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Validate variables and files
+  ansible.builtin.import_tasks: validate.yml
+
+- name: Ensure registry data directory exists
+  ansible.builtin.file:
+    path: "{{ ceph_registry_data_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate htpasswd file for registry authentication
+  ansible.builtin.include_tasks: htpasswd.yml
+  when: ceph_registry_auth_enabled
+
+- name: TLS certificate setup
+  when: ceph_registry_tls_enabled
+  ansible.builtin.include_tasks: tls.yml
+
+- name: Load images from tar files if in offline mode
+  containers.podman.podman_image:
+    name: "{{ item.item.source }}:{{ item.item.tag }}"
+    path: "{{ ceph_registry_images_path }}/{{ item.item.tar_file }}"
+    state: present
+  loop:
+    - "{{ ceph_registry_ceph_image }}"
+    - "{{ ceph_registry_registry_image }}"
+
+- name: Create registry configuration
+  ansible.builtin.template:
+    src: registry_config.yml.j2
+    dest: "{{ ceph_registry_path }}/config.yml"
+    mode: '0644'
+
+- name: Start registry container
+  containers.podman.podman_container:
+    name: "{{ ceph_registry_container_name }}"
+    image: registry:2
+    state: started
+    detach: true
+    privileged: true
+    ports:
+      - "{{ ceph_registry_port }}:5000"
+    volume: "{{ _base_volumes + _tls_volumes }}"
+    restart_policy: always
+  vars:
+    _base_volumes:
+      - "{{ ceph_registry_data_path }}:/var/lib/registry"
+      - "{{ ceph_registry_path }}/config.yml:/etc/docker/registry/config.yml:ro"
+      - "{{ ceph_registry_path }}/htpasswd:/auth/htpasswd:ro"
+    _tls_volumes: "{{ [ceph_registry_path + '/certs:/certs:ro'] if ceph_registry_tls_enabled else [] }}"
+
+- name: Wait for registry to be ready
+  ansible.builtin.uri:
+    url: "{{ 'https' if ceph_registry_tls_enabled else 'http' }}://localhost:{{ ceph_registry_port }}/v2/"
+    validate_certs: false
+    method: GET
+    status_code: 200
+  retries: 30
+  delay: 2
+  register: ceph_registry_ready
+  until: ceph_registry_ready.status == 200
+
+- name: Set registry push address
+  ansible.builtin.set_fact:
+    ceph_registry_push_address: >-
+      {{ (ansible_default_ipv4.address + ':' + (ceph_registry_port | string))
+         if ceph_registry_tls_enabled
+         else 'localhost:' + (ceph_registry_port | string) }}
+
+- name: Tag and push ceph image to local registry
+  containers.podman.podman_image:
+    name: "{{ item.source }}:{{ item.tag }}"
+    push: true
+    push_args:
+      dest: "{{ ceph_registry_push_address }}/{{ item.name }}:{{ item.tag }}"
+  loop:
+    - "{{ ceph_registry_ceph_image }}"

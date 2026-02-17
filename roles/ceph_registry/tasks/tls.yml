@@ -1,0 +1,125 @@
+# Copyright (C) 2025 RTE
+# Copyright (C) 2026 Savoir-faire Linux, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Create registry certs directory
+  ansible.builtin.file:
+    path: "{{ ceph_registry_path }}/certs"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate self-signed CA and server certificate
+  when: ceph_registry_tls_cert is none or ceph_registry_tls_key is none or ceph_registry_tls_ca is none
+  block:
+    - name: Generate CA private key
+      ansible.builtin.command:
+        cmd: openssl genrsa -out {{ ceph_registry_path }}/certs/ca.key 4096
+        creates: "{{ ceph_registry_path }}/certs/ca.key"
+
+    - name: Generate CA certificate
+      ansible.builtin.command:
+        cmd: >
+          openssl req -x509 -new -nodes
+          -key {{ ceph_registry_path }}/certs/ca.key
+          -sha256 -days 3650
+          -out {{ ceph_registry_path }}/certs/ca.crt
+          -subj "/CN=SEAPATH Registry CA"
+        creates: "{{ ceph_registry_path }}/certs/ca.crt"
+
+    - name: Generate server private key
+      ansible.builtin.command:
+        cmd: openssl genrsa -out {{ ceph_registry_path }}/certs/server.key 4096
+        creates: "{{ ceph_registry_path }}/certs/server.key"
+
+    - name: Create OpenSSL config for SAN
+      ansible.builtin.copy:
+        content: |
+          [req]
+          distinguished_name = req_dn
+          req_extensions = v3_req
+          prompt = no
+          [req_dn]
+          CN = {{ inventory_hostname }}
+          [v3_req]
+          subjectAltName = IP:{{ ansible_default_ipv4.address }},DNS:{{ inventory_hostname }},IP:127.0.0.1
+        dest: "{{ ceph_registry_path }}/certs/openssl.cnf"
+        mode: '0644'
+
+    - name: Generate server CSR
+      ansible.builtin.command:
+        cmd: >
+          openssl req -new
+          -key {{ ceph_registry_path }}/certs/server.key
+          -out {{ ceph_registry_path }}/certs/server.csr
+          -config {{ ceph_registry_path }}/certs/openssl.cnf
+        creates: "{{ ceph_registry_path }}/certs/server.csr"
+
+    - name: Sign server certificate with CA
+      ansible.builtin.command:
+        cmd: >
+          openssl x509 -req
+          -in {{ ceph_registry_path }}/certs/server.csr
+          -CA {{ ceph_registry_path }}/certs/ca.crt
+          -CAkey {{ ceph_registry_path }}/certs/ca.key
+          -CAcreateserial
+          -out {{ ceph_registry_path }}/certs/server.crt
+          -days 3650 -sha256
+          -extensions v3_req
+          -extfile {{ ceph_registry_path }}/certs/openssl.cnf
+        creates: "{{ ceph_registry_path }}/certs/server.crt"
+
+    - name: Set generated cert paths
+      ansible.builtin.set_fact:
+        ceph_registry_tls_cert: "{{ ceph_registry_path }}/certs/server.crt"
+        ceph_registry_tls_key: "{{ ceph_registry_path }}/certs/server.key"
+        ceph_registry_tls_ca: "{{ ceph_registry_path }}/certs/ca.crt"
+
+- name: Copy user-provided certificates
+  when:
+    - ceph_registry_tls_cert is not none
+    - ceph_registry_tls_key is not none
+    - ceph_registry_tls_ca is not none
+  block:
+    - name: Copy TLS certificate
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_cert }}"
+        dest: "{{ ceph_registry_path }}/certs/server.crt"
+        mode: '0644'
+
+    - name: Copy TLS private key
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_key }}"
+        dest: "{{ ceph_registry_path }}/certs/server.key"
+        mode: '0600'
+
+    - name: Copy CA certificate
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_ca }}"
+        dest: "{{ ceph_registry_path }}/certs/ca.crt"
+        mode: '0644'
+      when: ceph_registry_tls_ca is not none
+
+- name: Set key file permissions
+  ansible.builtin.file:
+    path: "{{ ceph_registry_path }}/certs/{{ item }}"
+    mode: '0600'
+  loop:
+    - server.key
+    - ca.key
+  failed_when: false
+
+- name: Create local podman certs.d directory
+  ansible.builtin.file:
+    path: "/etc/containers/certs.d/{{ ansible_default_ipv4.address }}:{{ ceph_registry_port }}"
+    state: directory
+    mode: '0755'
+
+- name: Install CA certificate for local podman
+  ansible.builtin.copy:
+    src: "{{ ceph_registry_path }}/certs/ca.crt"
+    dest: "/etc/containers/certs.d/{{ ansible_default_ipv4.address }}:{{ ceph_registry_port }}/ca.crt"
+    remote_src: true
+    mode: '0644'

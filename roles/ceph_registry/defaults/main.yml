@@ -1,0 +1,38 @@
+# Copyright (C) 2025 RTE
+# Copyright (C) 2026 Savoir-faire Linux, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+ceph_registry_path: "container_images/"
+ceph_registry_data_path: "{{ ceph_registry_path }}/data"
+ceph_registry_images_path: "{{ ceph_registry_path }}/images"
+ceph_registry_port: 443
+ceph_registry_container_name: "seapath-registry"
+
+# TLS and Authentication
+ceph_registry_tls_enabled: true
+ceph_registry_tls_cert: null
+ceph_registry_tls_key: null
+ceph_registry_tls_ca: null
+
+ceph_registry_auth_enabled: false
+ceph_registry_auth_htpasswd: null
+ceph_registry_username: null
+ceph_registry_password: null
+
+# Ceph version for container image
+ceph_registry_ceph_version: null
+
+# Images
+ceph_registry_ceph_image: {
+   name: "ceph",
+   tag: "v{{ ceph_registry_ceph_version }}",
+   source: "quay.io/ceph/ceph",
+   tar_file: "ceph-v{{ ceph_registry_ceph_version }}.tar"
+}
+ceph_registry_registry_image: {
+  name: "registry",
+  tag: "2",
+  source: "docker.io/library/registry",
+  tar_file: "registry-2.tar"
+}
