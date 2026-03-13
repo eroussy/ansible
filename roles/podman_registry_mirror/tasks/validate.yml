@@ -1,0 +1,21 @@
+---
+- name: Verify required variables for podman_registry_mirror
+  ansible.builtin.assert:
+    that:
+      - podman_registry_mirror_url is not none
+      - podman_registry_mirror_url | length > 0
+      - podman_registry_mirror_ca_cert_path is not none
+      - podman_registry_mirror_ca_cert_path | length > 0
+    fail_msg: "podman_registry_mirror_url and podman_registry_mirror_ca_cert_path must be set"
+
+- name: Ensure registry CA certificate exists
+  ansible.builtin.stat:
+    path: "{{ podman_registry_mirror_ca_cert_path }}"
+  register: podman_registry_mirror_ca_cert_stat
+  delegate_to: localhost
+  become: false
+
+- name: Fail when registry CA certificate does not exist
+  ansible.builtin.fail:
+    msg: "Registry CA certificate not found on the Ansible control node at {{ podman_registry_mirror_ca_cert_path }}"
+  when: not podman_registry_mirror_ca_cert_stat.stat.exists
