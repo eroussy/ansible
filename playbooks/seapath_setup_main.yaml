@@ -9,6 +9,35 @@
 # This playbooks can also configure VMs created with build_debian_iso
 # This playbook also configures Yocto standalone machine (no cluster)
 
+---
+- name: Setup registry for disconnected deployment
+  hosts: localhost
+  become: true
+  gather_facts: true
+  roles:
+    - registry
+  vars:
+    registry_offline_mode: "{{ disconnected_mode | default(false) }}"
+    registry_images:
+      - name: "ceph"
+        tag: "v{{ cephadm_release }}"
+        source: "quay.io/ceph/ceph"
+        tar_file: "ceph-v{{ cephadm_release }}.tar"
+      - name: "registry"
+        tag: "2"
+        source: "docker.io/library/registry"
+        tar_file: "registry-2.tar"
+	#TODO: sanitize that and make optional
+
+- name: Setup registry for disconnected deployment
+  hosts: cluster_machines
+  become: true
+  gather_facts: true
+  roles:
+    - registry_mirroring
+	#TODO: sanitize that and make optional
+  #TODO: move that in playbook
+
 - name: Detect Seapath distribution
   hosts:
     - cluster_machines
@@ -53,7 +82,7 @@
   import_playbook: cluster_setup_ceph.yaml
   when: not is_using_cephadm | bool
 
-- name: Import cluster_setup_cephdm playbook
+- name: Import cluster_setup_cephadm playbook
   import_playbook: cluster_setup_cephadm.yaml
   when: is_using_cephadm | bool
 

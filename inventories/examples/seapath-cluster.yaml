@@ -97,10 +97,30 @@ mons:
     node3:
   vars:
     # For external registry (disconnected mode), uncomment these:
-    # disconnected_mode: true
-    # registry_url: "192.168.200.100"       # Control machine IP
-    # registry_host: "192.168.200.100"      # Control machine IP
-    # registry_tls_enabled: true            # TLS with auto-generated certs (port 443)
+    # Registry configuration
+    registry_url: "{{ ansible_default_ipv4.address }}"
+    registry_host: "{{ ansible_default_ipv4.address }}"
+    podman_registry_mirror_url: "{{ ansible_default_ipv4.address }}"
+    disconnected_mode: true #TODO change this name
+
+    # Registry security (uncomment and configure as needed)
+    # registry_insecure: false
+    # registry_username: "admin"
+    # registry_password: "secure_password"
+    # registry_ca_cert: "/path/to/registry-ca.crt"
+
+    # Registry TLS (enabled by default with auto-generated certificates)
+    podman_registry_mirror_tls_enabled: true
+    # To use your own certificates instead of auto-generated:
+    # registry_tls_cert: "/path/to/server.crt"
+    # registry_tls_key: "/path/to/server.key"
+    # registry_tls_ca: "/path/to/ca.crt"
+
+    # Registry authentication (uncomment and configure as needed)
+    # registry_auth_enabled: true
+    # registry_auth_htpasswd: "/opt/seapath/registry/htpasswd"
+
+    # Ceph configuration
     ceph_origin: distro
     cluster_network: "192.168.55.0/24" # IP range of your cluster. TODO
     public_network: "{{ cluster_network }}"
