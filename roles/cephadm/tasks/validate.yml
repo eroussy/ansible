@@ -1,0 +1,24 @@
+# Copyright (C) 2026 Savoir-faire Linux, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Verify required host variables are defined
+  ansible.builtin.assert:
+    that:
+      - hostname is defined
+      - hostname | length > 0
+      - cluster_ip_addr is defined
+      - cluster_ip_addr | length > 0
+    fail_msg: "hostname and cluster_ip_addr must be set for each host in the cluster"
+
+- name: Verify required variables for cephadm registry authentication
+  ansible.builtin.assert:
+    that:
+      - cephadm_registry_url is not none
+      - cephadm_registry_url | length > 0
+      - cephadm_registry_username is not none
+      - cephadm_registry_username | length > 0
+      - cephadm_registry_password is not none
+      - cephadm_registry_password | length > 0
+    fail_msg: "cephadm_registry_url, cephadm_registry_username, and cephadm_registry_password must be set when cephadm_registry_auth_enabled is true"
+  when: cephadm_registry_auth_enabled | bool
