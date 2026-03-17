@@ -37,6 +37,8 @@
   hosts: localhost
   become: true
   gather_facts: true
+  vars:
+    - ceph_registry_path: "../files/container_images/"
   roles:
     - role: ceph_registry
       when: registry_url is defined and registry_url is not none

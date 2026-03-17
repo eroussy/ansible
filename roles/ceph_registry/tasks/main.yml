@@ -22,11 +22,9 @@
   when: ceph_registry_tls_enabled
   ansible.builtin.include_tasks: tls.yml
 
-- name: Load images from tar files if in offline mode
-  containers.podman.podman_image:
-    name: "{{ item.item.source }}:{{ item.item.tag }}"
-    path: "{{ ceph_registry_images_path }}/{{ item.item.tar_file }}"
-    state: present
+- name: Load images from tar files
+  containers.podman.podman_load:
+    input: "{{ ceph_registry_images_path }}/{{ item.tar_file }}"
   loop:
     - "{{ ceph_registry_ceph_image }}"
     - "{{ ceph_registry_registry_image }}"
@@ -46,13 +44,13 @@
     privileged: true
     ports:
       - "{{ ceph_registry_port }}:5000"
-    volume: "{{ _base_volumes + _tls_volumes }}"
+    volume: "{{ _base_volumes + _auth_volumes + _tls_volumes }}"
     restart_policy: always
   vars:
     _base_volumes:
       - "{{ ceph_registry_data_path }}:/var/lib/registry"
       - "{{ ceph_registry_path }}/config.yml:/etc/docker/registry/config.yml:ro"
-      - "{{ ceph_registry_path }}/htpasswd:/auth/htpasswd:ro"
+    _auth_volumes: "{{ [ceph_registry_path + '/htpasswd:/auth/htpasswd:ro'] if ceph_registry_auth_enabled else [] }}"
     _tls_volumes: "{{ [ceph_registry_path + '/certs:/certs:ro'] if ceph_registry_tls_enabled else [] }}"
 
 - name: Wait for registry to be ready

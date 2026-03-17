@@ -44,7 +44,7 @@
           [req_dn]
           CN = {{ inventory_hostname }}
           [v3_req]
-          subjectAltName = IP:{{ ansible_default_ipv4.address }},DNS:{{ inventory_hostname }},IP:127.0.0.1
+          subjectAltName = IP:{{ ceph_registry_url }},DNS:{{ inventory_hostname }},IP:127.0.0.1
         dest: "{{ ceph_registry_path }}/certs/openssl.cnf"
         mode: '0644'
 
@@ -112,14 +112,16 @@
   failed_when: false
 
 - name: Create local podman certs.d directory
+  become: true
   ansible.builtin.file:
-    path: "/etc/containers/certs.d/{{ ansible_default_ipv4.address }}:{{ ceph_registry_port }}"
+    path: "/etc/containers/certs.d/{{ ceph_registry_url }}:{{ ceph_registry_port }}"
     state: directory
     mode: '0755'
 
 - name: Install CA certificate for local podman
+  become: true
   ansible.builtin.copy:
     src: "{{ ceph_registry_path }}/certs/ca.crt"
-    dest: "/etc/containers/certs.d/{{ ansible_default_ipv4.address }}:{{ ceph_registry_port }}/ca.crt"
+    dest: "/etc/containers/certs.d/{{ ceph_registry_url }}:{{ ceph_registry_port }}/ca.crt"
     remote_src: true
     mode: '0644'

@@ -17,8 +17,15 @@
   loop:
     - "{{ ceph_registry_ceph_image }}"
     - "{{ ceph_registry_registry_image }}"
-  failed_when: not ceph_registry_image_tar_stat.stat.exists
   changed_when: false
+
+- name: Fail if image tar files do not exist
+  ansible.builtin.fail:
+    msg: |
+      Required image tar file not found: {{ item.item.tar_file }}
+      Expected path: {{ ceph_registry_images_path }}/{{ item.item.tar_file }}
+  loop: "{{ ceph_registry_image_tar_stat.results }}"
+  when: not item.stat.exists
 
 - name: Verify TLS configuration when enabled
   when: ceph_registry_tls_enabled

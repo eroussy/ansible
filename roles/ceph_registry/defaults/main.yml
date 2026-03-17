@@ -7,6 +7,7 @@ ceph_registry_path: "files/container_images/"
 ceph_registry_data_path: "{{ ceph_registry_path }}/data"
 ceph_registry_images_path: "{{ ceph_registry_path }}/images"
 ceph_registry_port: 443
+ceph_registry_url: "{{ registry_url | default(null) }}"
 ceph_registry_container_name: "seapath-registry"
 
 # TLS and Authentication
