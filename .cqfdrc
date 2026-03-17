@@ -1,10 +1,17 @@
 [project]
 org='seapath'
 name='ansible'
-flavors='prepare manual module_documentation ansible-lint export'
+flavors='prepare pull_ceph manual module_documentation ansible-lint export'
 
 [build]
 command='check_yaml && ansible-lint -c ansible-lint.conf'
+
+[pull_ceph]
+command="mkdir -p files/container_images/images && \
+         podman pull docker.io/library/registry:2 && \
+         podman pull quay.io/ceph/ceph:v20.2.0 && \
+         podman save -o files/container_images/images/registry-2.tar registry:2 && \
+         podman save -o files/container_images/images/ceph-v20.2.0.tar quay.io/ceph/ceph:v20.2.0"
 
 [prepare]
 command='./prepare.sh'
