@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
-podman_registry_mirror_url: null
-podman_registry_mirror_ca_cert_path: null
-podman_registry_mirror_tls_enabled: false
+podman_registry_mirror_url: "{{ registry_url | default(null) }}"
+podman_registry_mirror_ca_cert_path: "files/container_images/certs/ca.crt" # Aligned with ceph_registry TLS cert path
+podman_registry_mirror_tls_enabled: "{{ registry_tls_enabled | default(false) }}"

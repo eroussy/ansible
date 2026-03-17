@@ -3,25 +3,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
-ceph_registry_path: "container_images/"
+ceph_registry_path: "files/container_images/"
 ceph_registry_data_path: "{{ ceph_registry_path }}/data"
 ceph_registry_images_path: "{{ ceph_registry_path }}/images"
 ceph_registry_port: 443
 ceph_registry_container_name: "seapath-registry"
 
 # TLS and Authentication
-ceph_registry_tls_enabled: true
+ceph_registry_tls_enabled: "{{ registry_tls_enabled | default(true) }}"
 ceph_registry_tls_cert: null
 ceph_registry_tls_key: null
 ceph_registry_tls_ca: null
 
-ceph_registry_auth_enabled: false
-ceph_registry_auth_htpasswd: null
-ceph_registry_username: null
-ceph_registry_password: null
+ceph_registry_auth_enabled: "{{ registry_auth_enabled | default(false) }}"
+ceph_registry_username: "{{ registry_username | default(null) }}"
+ceph_registry_password: "{{ registry_password | default(null) }}"
 
 # Ceph version for container image
-ceph_registry_ceph_version: null
+ceph_registry_ceph_version: "{{ ceph_version | default(null) }}"
 
 # Images
 ceph_registry_ceph_image: {

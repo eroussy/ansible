@@ -9,11 +9,11 @@ No requirements.
 
 ## Role Variables
 
-| Variable                            | Required | Type    | Default | Comments                                                                                                      |
-|-------------------------------------|----------|---------|---------|---------------------------------------------------------------------------------------------------------------|
-| podman_registry_mirror_url          | Yes      | string  |         | Mirror URL (e.g. "192.168.1.10:5000").                                                                        |
-| podman_registry_mirror_ca_cert_path | Yes      | string  |         | Path to the registry CA certificate file on the Ansible control node (e.g. "inventories/ca/registry-ca.crt"). |
-| podman_registry_mirror_tls_enabled  | No       | boolean | false   | Enable TLS when communicating with the mirror registry.                                                       |
+| Variable                            | Required | Type    | Default                             | Comments                                                |
+|-------------------------------------|----------|---------|-------------------------------------|---------------------------------------------------------|
+| podman_registry_mirror_url          | No       | string  | `registry_url`                      | Mirror URL. Uses `registry_url` variable if defined.    |
+| podman_registry_mirror_ca_cert_path | No       | string  | files/container_images/certs/ca.crt | Path to the registry CA certificate file on the Ansible control node (e.g. "inventories/ca/registry-ca.crt"). |
+| podman_registry_mirror_tls_enabled  | No       | boolean | `registry_tls_enabled` or false     | Enable TLS when communicating with the mirror registry. |
 
 ## Example Playbook
 

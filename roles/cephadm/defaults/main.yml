@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
-cephadm_release: "20.2.0"
+cephadm_release: "{{ ceph_version | default('20.2.0') }}"
 cephadm_release_name: "tentacle"
 cephadm_downloadbinary: false
 cephadm_installbinary: false
@@ -12,7 +12,7 @@ cephadm_installcommon: false
 cephadm_pullimages: false
 
 # Registry configuration (for registry on ansible machine)
-cephadm_registry_url: null
-cephadm_registry_auth_enabled: false
-cephadm_registry_username: null
-cephadm_registry_password: null
+cephadm_registry_url: "{{ registry_url | default(null) }}"
+cephadm_registry_auth_enabled: "{{ registry_auth_enabled | default(false) }}"
+cephadm_registry_username: "{{ registry_username | default(null) }}"
+cephadm_registry_password: "{{ registry_password | default(null) }}"
