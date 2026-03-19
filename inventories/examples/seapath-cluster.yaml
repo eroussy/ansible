@@ -50,7 +50,7 @@ all:
 
     # Registry for ceph container image on ansible machine
     # You can remove thoses two variables if you are on Debian. It will fallback to ceph image embedded in SEAPATH Debian iso.
-    registry_url: "192.168.200.100" # IP address of the ansible machine. TODO
+    registry_url: "192.168.216.68" # IP address of the ansible machine. TODO
     registry_tls_enabled: true
     ceph_version: "20.2.0"
     # TODO: move that ?

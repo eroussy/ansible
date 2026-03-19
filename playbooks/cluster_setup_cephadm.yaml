@@ -5,57 +5,12 @@
 
 ---
 
-- name: Prepare Ceph installation
-  hosts:
-      osds
-  become: true
-  gather_facts: yes
-  roles:
-    - detect_seapath_distro
-    - ceph_prepare_installation
-
-- name: Ceph Expansion VG
-  hosts:
-      osds
-  become: true
-  gather_facts: yes
-  roles:
-    - role: ceph_expansion_vg
-      when: lvm_volumes is defined
-
-- name: Ceph Expansion LV
-  hosts:
-      osds
-  become: true
-  gather_facts: yes
-  serial: 1
-  roles:
-    - role: ceph_expansion_lv
-      when: lvm_volumes is defined
-
 - name: Setup registry on ansible machine
   hosts: localhost
-  become: true
   gather_facts: true
+  become: true
   vars:
     - ceph_registry_path: "../files/container_images/"
   roles:
     - role: ceph_registry
       when: registry_url is defined and registry_url is not none
-
-- name: Setup registry mirroring on cluster machines
-  hosts: cluster_machines
-  become: true
-  gather_facts: true
-  roles:
-    - role: podman_registry_mirror
-      when: registry_url is defined and registry_url is not none
-
-- name: Cephadm
-  hosts:
-      cluster_machines
-  become: true
-  roles:
-    - detect_seapath_distro
-    - cephadm
-    - deploy_cephfs

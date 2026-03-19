@@ -11,6 +11,31 @@
     group: root
     mode: '0755'
 
+- name: Copy user-provided certificates
+  when:
+    - ceph_registry_tls_cert is not none
+    - ceph_registry_tls_key is not none
+    - ceph_registry_tls_ca is not none
+  block:
+    - name: Copy TLS certificate
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_cert }}"
+        dest: "{{ ceph_registry_path }}/certs/server.crt"
+        mode: '0644'
+
+    - name: Copy TLS private key
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_key }}"
+        dest: "{{ ceph_registry_path }}/certs/server.key"
+        mode: '0600'
+
+    - name: Copy CA certificate
+      ansible.builtin.copy:
+        src: "{{ ceph_registry_tls_ca }}"
+        dest: "{{ ceph_registry_path }}/certs/ca.crt"
+        mode: '0644'
+      when: ceph_registry_tls_ca is not none
+
 - name: Generate self-signed CA and server certificate
   when: ceph_registry_tls_cert is none or ceph_registry_tls_key is none or ceph_registry_tls_ca is none
   block:
@@ -77,31 +102,6 @@
         ceph_registry_tls_key: "{{ ceph_registry_path }}/certs/server.key"
         ceph_registry_tls_ca: "{{ ceph_registry_path }}/certs/ca.crt"
 
-- name: Copy user-provided certificates
-  when:
-    - ceph_registry_tls_cert is not none
-    - ceph_registry_tls_key is not none
-    - ceph_registry_tls_ca is not none
-  block:
-    - name: Copy TLS certificate
-      ansible.builtin.copy:
-        src: "{{ ceph_registry_tls_cert }}"
-        dest: "{{ ceph_registry_path }}/certs/server.crt"
-        mode: '0644'
-
-    - name: Copy TLS private key
-      ansible.builtin.copy:
-        src: "{{ ceph_registry_tls_key }}"
-        dest: "{{ ceph_registry_path }}/certs/server.key"
-        mode: '0600'
-
-    - name: Copy CA certificate
-      ansible.builtin.copy:
-        src: "{{ ceph_registry_tls_ca }}"
-        dest: "{{ ceph_registry_path }}/certs/ca.crt"
-        mode: '0644'
-      when: ceph_registry_tls_ca is not none
-
 - name: Set key file permissions
   ansible.builtin.file:
     path: "{{ ceph_registry_path }}/certs/{{ item }}"
@@ -112,14 +112,12 @@
   failed_when: false
 
 - name: Create local podman certs.d directory
-  become: true
   ansible.builtin.file:
     path: "/etc/containers/certs.d/{{ ceph_registry_url }}:{{ ceph_registry_port }}"
     state: directory
     mode: '0755'
 
 - name: Install CA certificate for local podman
-  become: true
   ansible.builtin.copy:
     src: "{{ ceph_registry_path }}/certs/ca.crt"
     dest: "/etc/containers/certs.d/{{ ceph_registry_url }}:{{ ceph_registry_port }}/ca.crt"

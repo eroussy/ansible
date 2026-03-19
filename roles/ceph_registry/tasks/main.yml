@@ -67,7 +67,7 @@
 - name: Set registry push address
   ansible.builtin.set_fact:
     ceph_registry_push_address: >-
-      {{ (ansible_default_ipv4.address + ':' + (ceph_registry_port | string))
+      {{ (ceph_registry_url + ':' + (ceph_registry_port | string))
          if ceph_registry_tls_enabled
          else 'localhost:' + (ceph_registry_port | string) }}
 

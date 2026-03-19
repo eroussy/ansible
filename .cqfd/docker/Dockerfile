@@ -21,6 +21,7 @@ RUN set -x \
         rstcheck \
         rsync \
         ruby-asciidoctor-pdf \
+        sudo \
         npm \
         vim \
     && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen \
@@ -37,5 +38,7 @@ RUN set -x \
     && rm -rf /var/lib/{apt,dpkg,cache,log}/*
 
 ENV PATH="/env/bin:/env/usr/bin:/env/sbin:/env/usr/sbin:$PATH"
+
+RUN echo '%builders    ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 COPY check_yaml.sh /usr/bin/check_yaml
