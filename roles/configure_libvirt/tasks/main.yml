@@ -41,6 +41,7 @@
     mode: '0755'
     owner: root
     group: root
+  when: configure_libvirt_deploy_seapath_qemu_hook
   notify: Restart libvirtd
 
 - name: Copy qemu_hook.py to libvirt qemu hook
@@ -50,4 +51,12 @@
     mode: '0755'
     owner: root
     group: root
+  when: configure_libvirt_deploy_seapath_qemu_hook
+  notify: Restart libvirtd
+
+- name: Remove seapath qemu hook when disabled
+  ansible.builtin.file:
+    path: /etc/libvirt/hooks/qemu.d/seapath_qemu_hook.py
+    state: absent
+  when: not configure_libvirt_deploy_seapath_qemu_hook
   notify: Restart libvirtd
